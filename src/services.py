@@ -1,12 +1,17 @@
 import json
 import logging
+from datetime import datetime
 
 import pandas as pd
 
 logging.basicConfig(level=logging.INFO)
 
 
-def analyze_cashback_categories_from_excel(filepath, year, month):
+def analyze_cashback_categories_from_excel(filepath, year=None, month=None):
+    # Получаем текущий год и месяц, если не переданы параметры
+    now = datetime.now()
+    year = year if year is not None else now.year
+    month = month if month is not None else now.month
     # Чтение данных из Excel
     df = pd.read_excel(filepath)
 
