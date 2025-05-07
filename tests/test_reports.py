@@ -1,17 +1,23 @@
-import pytest
-import pandas as pd
+import json
 import os
 import tempfile
-import json
-from src.reports import spending_by_category, repot_decorator
+
+import pandas as pd
+import pytest
+
+from src.reports import repot_decorator, spending_by_category
 
 
 @pytest.fixture
 def sample_transactions():
     data = [
         {"Дата операции": "01.01.2024 10:00:00", "Категория": "Продукты", "Сумма": 100},
-        {"Дата операции": "15.04.2024 15:00:00", "Категория": "Развлечения", "Сумма": 150},
-        {"Дата операции": "18.05.2024 09:20:00", "Категория": "Продукты", "Сумма": 200}
+        {
+            "Дата операции": "15.04.2024 15:00:00",
+            "Категория": "Развлечения",
+            "Сумма": 150,
+        },
+        {"Дата операции": "18.05.2024 09:20:00", "Категория": "Продукты", "Сумма": 200},
     ]
 
     return pd.DataFrame(data)
