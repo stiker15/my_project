@@ -1,15 +1,19 @@
-import pandas as pd
 import json
+
+import pandas as pd
+
 from src.services import analyze_cashback_categories_from_excel
 
 
 def test_analyze_cashback_categories_from_excel_basic(tmp_path):
     # Подготавливаем данные
-    df = pd.DataFrame({
-        "Дата операции": ["15.03.2024", "16.03.2024", "17.02.2024", "18.03.2024"],
-        "Категория": ["Еда", "Еда", "АЗС", "Такси"],
-        "Кэшбэк": [10, 20, 5, 30]
-    })
+    df = pd.DataFrame(
+        {
+            "Дата операции": ["15.03.2024", "16.03.2024", "17.02.2024", "18.03.2024"],
+            "Категория": ["Еда", "Еда", "АЗС", "Такси"],
+            "Кэшбэк": [10, 20, 5, 30],
+        }
+    )
     excel_file = tmp_path / "cashback.xlsx"
     df.to_excel(excel_file, index=False)
 
@@ -22,11 +26,13 @@ def test_analyze_cashback_categories_from_excel_basic(tmp_path):
 
 
 def test_analyze_cashback_categories_from_excel_all_zero_cashback(tmp_path):
-    df = pd.DataFrame({
-        "Дата операции": ["01.05.2024", "02.05.2024"],
-        "Категория": ["Фастфуд", "АЗС"],
-        "Кэшбэк": [0, 0]
-    })
+    df = pd.DataFrame(
+        {
+            "Дата операции": ["01.05.2024", "02.05.2024"],
+            "Категория": ["Фастфуд", "АЗС"],
+            "Кэшбэк": [0, 0],
+        }
+    )
     excel_file = tmp_path / "cashback2.xlsx"
     df.to_excel(excel_file, index=False)
 
@@ -48,11 +54,13 @@ def test_analyze_cashback_categories_from_excel_empty_file(tmp_path):
 
 
 def test_analyze_cashback_categories_from_excel_partial_nan(tmp_path):
-    df = pd.DataFrame({
-        "Дата операции": ["15.04.2024", None, "20.04.2024"],
-        "Категория": ["Аптека", "Еда", "Еда"],
-        "Кэшбэк": [15, 25, None]
-    })
+    df = pd.DataFrame(
+        {
+            "Дата операции": ["15.04.2024", None, "20.04.2024"],
+            "Категория": ["Аптека", "Еда", "Еда"],
+            "Кэшбэк": [15, 25, None],
+        }
+    )
     excel_file = tmp_path / "cashback_nan.xlsx"
     df.to_excel(excel_file, index=False)
 

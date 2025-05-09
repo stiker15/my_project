@@ -1,12 +1,12 @@
 import json
 import os
 from datetime import datetime
+
 import pandas as pd
 import requests
-from pandas import DataFrame
-from dotenv import load_dotenv
 import yfinance as yf
-
+from dotenv import load_dotenv
+from pandas import DataFrame
 
 load_dotenv()
 PACH_TO_FILE_EXCEL = "../data/operations.xlsx"
@@ -34,14 +34,14 @@ def get_data_time(date_time: str, data_format: str = "%Y-%m-%d %H:%M:%S") -> lis
 
     return [
         start_of_month.strftime("%d.%m.%Y %H:%M:%S"),
-        dt.strftime("%d.%m.%Y %H:%M:%S")
+        dt.strftime("%d.%m.%Y %H:%M:%S"),
     ]
 
 
 def get_path_and_period(path_of_file: str, period_date: list) -> DataFrame:
     """
-        Функция принимает путь к exel файлу и список дат и возвращает
-        таблицу в заданном периоде
+    Функция принимает путь к exel файлу и список дат и возвращает
+    таблицу в заданном периоде
     """
     df = pd.read_excel(path_of_file, sheet_name="Отчет по операциям")
 
@@ -50,8 +50,7 @@ def get_path_and_period(path_of_file: str, period_date: list) -> DataFrame:
     end_date = datetime.strptime(period_date[1], "%d.%m.%Y %H:%M:%S")
 
     filtered_df = df[
-        (df["Дата операции"] >= start_date) &
-        (df["Дата операции"] <= end_date)
+        (df["Дата операции"] >= start_date) & (df["Дата операции"] <= end_date)
     ]
     sorted_df = filtered_df.sort_values(by="Дата операции", ascending=True)
     return sorted_df
@@ -59,16 +58,11 @@ def get_path_and_period(path_of_file: str, period_date: list) -> DataFrame:
 
 def get_card_with_spend(sorted_df: DataFrame) -> list[dict]:
     """
-        Функция принимает DataFrame и Возвращает список карт с расходами
+    Функция принимает DataFrame и Возвращает список карт с расходами
     """
     card_spend_transaction = []
     card_sorted = sorted_df[
-        [
-            "Номер карты",
-            "Сумма операции",
-            "Кэшбэк",
-            "Сумма операции с округлением"
-        ]
+        ["Номер карты", "Сумма операции", "Кэшбэк", "Сумма операции с округлением"]
     ]
     for i, r in card_sorted.iterrows():
         if r['Сумма операции'] < 0:
@@ -78,7 +72,7 @@ def get_card_with_spend(sorted_df: DataFrame) -> list[dict]:
             r = {
                 "last_digits": last_digits,
                 "total_spent": total_spent,
-                "cashback": cashback
+                "cashback": cashback,
             }
             card_spend_transaction.append(r)
 
@@ -87,25 +81,20 @@ def get_card_with_spend(sorted_df: DataFrame) -> list[dict]:
 
 def get_top_transaction(sorted_df: DataFrame, get_top):
     """
-        Функция принимает DataFrame и возвращает get_top топ-транзакций по сумме платежа
+    Функция принимает DataFrame и возвращает get_top топ-транзакций по сумме платежа
     """
     top_pay_transaction = []
     sorted_pay_df = sorted_df.sort_values(by="Сумма операции", ascending=False)
     top_transaction = sorted_pay_df.head(get_top)
     top_transaction_sorted = top_transaction[
-        [
-            "Дата платежа",
-            "Сумма операции",
-            "Категория",
-            "Описание"
-        ]
+        ["Дата платежа", "Сумма операции", "Категория", "Описание"]
     ]
     for i, r in top_transaction_sorted.iterrows():
         transaction = {
             "date": f"{r['Дата платежа']}",
             "amount": f"{r['Сумма операции']}",
             "category": f"{r['Категория']}",
-            "description": f"{r['Описание']}"
+            "description": f"{r['Описание']}",
         }
         top_pay_transaction.append(transaction)
 
@@ -114,8 +103,8 @@ def get_top_transaction(sorted_df: DataFrame, get_top):
 
 def get_currency(path_to_json: str) -> list[dict]:
     """
-       Функция принимает на вход значения из json файла по ключу "user_currencies"
-       и возвращает курс валют
+    Функция принимает на вход значения из json файла по ключу "user_currencies"
+    и возвращает курс валют
     """
     currency_rates = []
     with open(path_to_json, "r", encoding="utf-8") as file:
@@ -124,15 +113,12 @@ def get_currency(path_to_json: str) -> list[dict]:
         currences = data['user_currencies']
 
         for currence in currences:
-            params = {
-                "amount": 1,
-                "from": currence,
-                "to": "RUB"
-            }
+            params = {"amount": 1, "from": currence, "to": "RUB"}
             api_key = os.getenv('API_KEY')
             response = requests.get(
                 f"https://api.apilayer.com/exchangerates_data/convert",
-                headers={"apikey": api_key}, params=params
+                headers={"apikey": api_key},
+                params=params,
             )
 
             status_code = response.status_code
@@ -140,18 +126,19 @@ def get_currency(path_to_json: str) -> list[dict]:
                 result = response.json()
                 currency_code_response = result["query"]["from"]
                 currency_amount = round(result['result'], 2)
-                currency_rates.append({
-                    "currency": f"{currency_code_response}",
-                    "rate": f"{currency_amount}"
-
-                })
+                currency_rates.append(
+                    {
+                        "currency": f"{currency_code_response}",
+                        "rate": f"{currency_amount}",
+                    }
+                )
         return currency_rates
 
 
 def get_stock(path_to_json: str) -> list[dict]:
     """
-        Функция принимает на вход значения из json файла по ключу "user_stocks"
-        и возвращает стоимость акций
+    Функция принимает на вход значения из json файла по ключу "user_stocks"
+    и возвращает стоимость акций
     """
     stock_prices = []
     with open(path_to_json, "r", encoding="utf-8") as file:

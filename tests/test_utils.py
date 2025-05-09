@@ -1,12 +1,17 @@
-import pandas as pd
 import json
 from datetime import datetime
-from unittest.mock import patch, Mock
+from unittest.mock import Mock, patch
 
+import pandas as pd
 
 from src.utils import (
-    get_time_for_greeting, get_data_time, get_path_and_period,
-    get_card_with_spend, get_top_transaction, get_currency, get_stock
+    get_card_with_spend,
+    get_currency,
+    get_data_time,
+    get_path_and_period,
+    get_stock,
+    get_time_for_greeting,
+    get_top_transaction,
 )
 
 
@@ -15,6 +20,7 @@ def test_get_time_for_greeting(monkeypatch):
         @classmethod
         def now(cls):
             return cls(2024, 6, 1, 9)  # 9:00
+
     with patch("src.utils.datetime", MockDatetime):
         assert get_time_for_greeting() == "Доброе утро"
 
@@ -27,11 +33,13 @@ def test_get_data_time():
 
 def test_get_path_and_period(tmp_path):
     # создаём тестовый excel
-    df = pd.DataFrame({
-        "Дата операции": ["01.06.2024 09:00:00", "08.06.2024 12:00:00"],
-        "Сумма операции": [-100, 500],
-        "Категория": ["Такси", "Фастфуд"]
-    })
+    df = pd.DataFrame(
+        {
+            "Дата операции": ["01.06.2024 09:00:00", "08.06.2024 12:00:00"],
+            "Сумма операции": [-100, 500],
+            "Категория": ["Такси", "Фастфуд"],
+        }
+    )
     excelfile = tmp_path / "test.xlsx"
     df.to_excel(excelfile, sheet_name="Отчет по операциям", index=False)
     period = ["01.06.2024 00:00:00", "09.06.2024 23:59:59"]
@@ -40,23 +48,27 @@ def test_get_path_and_period(tmp_path):
 
 
 def test_get_card_with_spend():
-    df = pd.DataFrame({
-        "Номер карты": ["*1234", "*5678"],
-        "Сумма операции": [-100, 200],
-        "Кэшбэк": [0, 1],
-        "Сумма операции с округлением": [100, 200]
-    })
+    df = pd.DataFrame(
+        {
+            "Номер карты": ["*1234", "*5678"],
+            "Сумма операции": [-100, 200],
+            "Кэшбэк": [0, 1],
+            "Сумма операции с округлением": [100, 200],
+        }
+    )
     cards = get_card_with_spend(df)
     assert cards[0]["last_digits"] == "1234"
 
 
 def test_get_top_transaction():
-    df = pd.DataFrame({
-        "Дата платежа": ["08.06.2024", "07.06.2024"],
-        "Сумма операции": [100, 200],
-        "Категория": ["Еда", "АЗС"],
-        "Описание": ["старбакс", "bp"]
-    })
+    df = pd.DataFrame(
+        {
+            "Дата платежа": ["08.06.2024", "07.06.2024"],
+            "Сумма операции": [100, 200],
+            "Категория": ["Еда", "АЗС"],
+            "Описание": ["старбакс", "bp"],
+        }
+    )
     res = get_top_transaction(df, 1)
     assert len(res) == 1
     assert res[0]["amount"] == "200"

@@ -1,24 +1,27 @@
+import datetime
 import functools
 import json
-import pandas as pd
-
-from typing import Optional
-import datetime
 import os
+from typing import Optional
+
+import pandas as pd
 
 
 def repot_decorator(file_name=None):
     """
-        Декоратор для функций-отчетов, который записывает в файл результат,
-        если имя файла передано, а если оно не передано тогда берем по умолчанию
+    Декоратор для функций-отчетов, который записывает в файл результат,
+    если имя файла передано, а если оно не передано тогда берем по умолчанию
     """
+
     def inner(func):
         @functools.wraps(func)
         def wrapper(*args, **kwargs):
             result = func(*args, **kwargs)
             nonlocal file_name
             if file_name is None:
-                file_name = input("Введите название файла: Пример формата: report_.json")
+                file_name = input(
+                    "Введите название файла: Пример формата: report_.json"
+                )
             category = args[1] if len(args) > 1 else kwargs.get('category', 'category')
             date = args[2] if len(args) > 2 else kwargs.get('date')
             if not date:
@@ -42,16 +45,18 @@ def repot_decorator(file_name=None):
                     json.dump(data, file, indent=4, ensure_ascii=False)
 
             return result
+
         return wrapper
+
     return inner
 
 
 @repot_decorator()
-def spending_by_category(transactions: pd.DataFrame,
-                         category: str,
-                         date: Optional[str] = None) -> pd.DataFrame:
+def spending_by_category(
+    transactions: pd.DataFrame, category: str, date: Optional[str] = None
+) -> pd.DataFrame:
     """
-       Функция возвращает траты по категории за последние 3 месяца
+    Функция возвращает траты по категории за последние 3 месяца
     """
     if date is None:
         date = datetime.datetime.today().strftime('%Y-%m-%d')
@@ -59,12 +64,15 @@ def spending_by_category(transactions: pd.DataFrame,
     start_date = end_date - pd.DateOffset(months=3)
     # Преобразуем дату
     if transactions['Дата операции'].dtype == 'O':
-        transactions['date'] = pd.to_datetime(transactions['Дата операции'], format="%d.%m.%Y %H:%M:%S")
+        transactions['date'] = pd.to_datetime(
+            transactions['Дата операции'], format="%d.%m.%Y %H:%M:%S"
+        )
     else:
         transactions['date'] = transactions['Дата операции']
     # Фильтрация
     mask = (
-        transactions['Категория'] == category) & (transactions['date'] >= start_date) & (
-        transactions['date'] <= end_date
+        (transactions['Категория'] == category)
+        & (transactions['date'] >= start_date)
+        & (transactions['date'] <= end_date)
     )
     return transactions.loc[mask]

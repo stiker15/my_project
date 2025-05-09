@@ -1,24 +1,22 @@
 import json
-
-from typing import Dict, Any
+from typing import Any, Dict
 
 from utils import (
-    get_time_for_greeting,
+    get_card_with_spend,
+    get_currency,
     get_data_time,
     get_path_and_period,
-    get_card_with_spend,
+    get_stock,
+    get_time_for_greeting,
     get_top_transaction,
-    get_currency,
-    get_stock
 )
 
 
-def main_info(date_time: str) -> Dict[str, Any]:
-
+def main_info(date_time: str) -> str:
     """
-        функций и главную функцию, принимающую на вход строку с датой и временем в формате
-        YYYY-MM-DD HH:MM:SS и возвращающую JSON-ответ
-        2018-05-20 15:30:00
+    функций и главную функцию, принимающую на вход строку с датой и временем в формате
+    YYYY-MM-DD HH:MM:SS и возвращающую JSON-ответ
+    2018-05-20 15:30:00
     """
     # Срез всего файла на определенный диапазон
     time_period = get_data_time(date_time)
@@ -44,9 +42,9 @@ def main_info(date_time: str) -> Dict[str, Any]:
         "cards": cards,
         "top_transaction": top_transaction,
         "currency_rates": currency,
-        "stock_prices": stock_prices
-
+        "stock_prices": stock_prices,
     }
     json_data = json.dumps(data, ensure_ascii=False, indent=4)
 
     return json_data
+
